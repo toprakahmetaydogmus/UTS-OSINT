@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Shadow Layer -->
+    <path
+        android:fillColor="#33000000"
+        android:pathData="M61,19 L39,57 H54 L46,91 L71,51 H56 Z" />
+    <!-- Foreground Lightning Bolt Layer -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M60,18 L38,56 H53 L45,90 L70,50 H55 Z" />
+</vector>

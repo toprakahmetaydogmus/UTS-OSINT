@@ -1,0 +1,6 @@
+{
+  "name": "UTS-OSINT",
+  "description": "A highly advanced cyber security and open source intelligence (OSINT) exploration utility, featuring DNS & Whois IP/Domain indicators, multi-service Username presence checking, image EXIF metadata analysis, Google Dork query constructors, and a virtual Gemini AI cyber analyst assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
