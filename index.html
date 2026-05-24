@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSINT FRAMEWORK — SIBER AKADEMİ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d060;
+    --gold-dim: #8a6a20;
+    --gold-pale: #3a2a08;
+    --black: #000000;
+    --dark: #050505;
+    --dark2: #0a0a0a;
+    --dark3: #111111;
+    --dark4: #181818;
+    --dark5: #222222;
+    --text: #e8d5a0;
+    --text-dim: #7a6535;
+    --red: #c0392b;
+    --green: #1abc9c;
+    --blue: #3498db;
+    --purple: #8e44ad;
+    --orange: #e67e22;
+    --cyan: #00d4ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--dark2); }
+  ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image:
+      linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SCANLINES */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    position: relative;
+    z-index: 10;
+    border-bottom: 1px solid var(--gold-dim);
+    background: linear-gradient(180deg, rgba(20,14,2,0.98) 0%, rgba(5,5,5,0.95) 100%);
+    padding: 0 40px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0 16px;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .logo-icon {
+    width: 56px; height: 56px;
+    position: relative;
+  }
+
+  .logo-icon svg {
+    width: 100%; height: 100%;
+  }
+
+  .logo-text h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dim) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .logo-text p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dim);
+    letter-spacing: 4px;
+    margin-top: 4px;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    display: block;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    display: block;
+    margin-top: 3px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 35px;
+    background: linear-gradient(180deg, transparent, var(--gold-dim), transparent);
+  }
+
+  .header-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--gold-dim);
+    background: rgba(201,168,76,0.05);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 2px;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse-dot 2s infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%,100% { opacity: 1; box-shadow: 0 0 6px var(--green); }
+    50% { opacity: 0.4; box-shadow: none; }
+  }
+
+  /* SEARCH BAR */
+  .search-section {
+    padding: 20px 0;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .search-wrap {
+    flex: 1;
+    position: relative;
+    max-width: 700px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    padding: 14px 50px 14px 20px;
+    background: rgba(201,168,76,0.04);
+    border: 1px solid var(--gold-dim);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    letter-spacing: 1px;
+    outline: none;
+    transition: all 0.3s;
+  }
+
+  .search-wrap input:focus {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.08);
+    box-shadow: 0 0 30px rgba(201,168,76,0.1);
+  }
+
+  .search-wrap input::placeholder { color: var(--text-dim); }
+
+  .search-icon {
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold-dim);
+    font-size: 16px;
+    pointer-events: none;
+  }
+
+  .filter-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filter-tag {
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px solid var(--gold-dim);
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-tag:hover, .filter-tag.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--black);
+  }
+
+  /* ===== MAIN LAYOUT ===== */
+  .main-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: calc(100vh - 140px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: linear-gradient(180deg, rgba(10,8,2,0.98) 0%, rgba(5,5,5,0.98) 100%);
+    border-right: 1px solid rgba(201,168,76,0.15);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 140px);
+    overflow-y: auto;
+  }
+
+  .sidebar-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold-dim);
+    padding: 0 20px 12px;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+    margin-bottom: 8px;
+  }
+
+  .cat-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-align: left;
+    border-left: 2px solid transparent;
+  }
+
+  .cat-btn:hover {
+    background: rgba(201,168,76,0.05);
+    color: var(--gold);
+    border-left-color: var(--gold-dim);
+  }
+
+  .cat-btn.active {
+    background: rgba(201,168,76,0.08);
+    color: var(--gold);
+    border-left-color: var(--gold);
+  }
+
+  .cat-icon {
+    width: 28px; height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .cat-name { flex: 1; }
+
+  .cat-count {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    padding: 2px 7px;
+    background: rgba(201,168,76,0.1);
+    color: var(--gold-dim);
+    border: 1px solid rgba(201,168,76,0.15);
+  }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    padding: 30px 35px;
+    overflow-y: auto;
+  }
+
+  /* CATEGORY SECTION */
+  .cat-section {
+    display: none;
+  }
+
+  .cat-section.visible {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+  }
+
+  .section-header-icon {
+    font-size: 32px;
+  }
+
+  .section-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .section-header p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    letter-spacing: 2px;
+  }
+
+  /* TOOL GRID */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+
+  /* SUB-CATEGORY */
+  .sub-cat-title {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--gold-dim);
+    margin: 24px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sub-cat-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(201,168,76,0.2), transparent);
+  }
+
+  /* TOOL CARD */
+  .tool-card {
+    position: relative;
+    background: linear-gradient(135deg, rgba(15,12,3,0.9) 0%, rgba(8,7,2,0.95) 100%);
+    border: 1px solid rgba(201,168,76,0.12);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    overflow: hidden;
+    text-decoration: none;
+    display: block;
+    group: true;
+  }
+
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .tool-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 30px; height: 30px;
+    background: linear-gradient(225deg, rgba(201,168,76,0.05), transparent);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  }
+
+  .tool-card:hover {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, rgba(25,18,4,0.95) 0%, rgba(12,10,2,0.98) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(201,168,76,0.15), 0 0 0 1px rgba(201,168,76,0.3);
+  }
+
+  .tool-card:hover::before { opacity: 1; }
+
+  .tool-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .tool-logo {
+    width: 36px; height: 36px;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    border: 1px solid rgba(201,168,76,0.15);
+    background: rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tool-logo img {
+    width: 28px; height: 28px;
+    object-fit: contain;
+  }
+
+  .tool-info { flex: 1; min-width: 0; }
+
+  .tool-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 1px;
+    line-height: 1.2;
+    margin-bottom: 3px;
+  }
+
+  .tool-url {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tool-desc {
+    font-size: 12px;
+    color: rgba(232,213,160,0.6);
+    line-height: 1.5;
+    letter-spacing: 0.3px;
+    font-family: 'Rajdhani', sans-serif;
+  }
+
+  .tool-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .tool-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    padding: 2px 7px;
+    letter-spacing: 1px;
+  }
+
+  .tag-free { background: rgba(26,188,156,0.1); color: var(--green); border: 1px solid rgba(26,188,156,0.2); }
+  .tag-web { background: rgba(52,152,219,0.1); color: var(--blue); border: 1px solid rgba(52,152,219,0.2); }
+  .tag-api { background: rgba(142,68,173,0.1); color: var(--purple); border: 1px solid rgba(142,68,173,0.2); }
+  .tag-tool { background: rgba(230,126,34,0.1); color: var(--orange); border: 1px solid rgba(230,126,34,0.2); }
+  .tag-premium { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+  .tag-dark { background: rgba(192,57,43,0.1); color: var(--red); border: 1px solid rgba(192,57,43,0.2); }
+
+  .tool-arrow {
+    position: absolute;
+    bottom: 12px; right: 14px;
+    color: var(--gold-dim);
+    font-size: 12px;
+    transition: all 0.2s;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .tool-card:hover .tool-arrow {
+    color: var(--gold);
+    transform: translate(2px, -2px);
+  }
+
+  /* SEARCH RESULTS */
+  #search-results {
+    display: none;
+  }
+
+  #search-results.visible {
+    display: block;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: linear-gradient(135deg, #0d0b02, #080700);
+    border: 1px solid var(--gold-dim);
+    max-width: 600px;
+    width: 95%;
+    padding: 36px;
+    position: relative;
+    animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 0 80px rgba(201,168,76,0.15), inset 0 1px 0 rgba(201,168,76,0.1);
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-corner {
+    position: absolute;
+    width: 16px; height: 16px;
+    border-color: var(--gold-dim);
+    border-style: solid;
+  }
+
+  .modal-corner.tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+  .modal-corner.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+  .modal-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+  .modal-corner.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 18px;
+    transition: color 0.2s;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .modal-close:hover { color: var(--gold); }
+
+  .modal-tool-logo {
+    font-size: 48px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .modal h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    color: var(--gold-light);
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  .modal-url {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--gold-dim);
+    margin-bottom: 20px;
+  }
+
+  .modal-desc {
+    font-size: 14px;
+    color: rgba(232,213,160,0.75);
+    line-height: 1.7;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: rgba(201,168,76,0.03);
+    border-left: 2px solid var(--gold-dim);
+  }
+
+  .modal-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    justify-content: center;
+  }
+
+  .modal-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    color: var(--black);
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .modal-btn:hover {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    box-shadow: 0 4px 20px rgba(201,168,76,0.4);
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 30px; right: 30px;
+    background: rgba(10,8,2,0.95);
+    border: 1px solid var(--gold-dim);
+    padding: 14px 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    z-index: 2000;
+    transform: translateX(200px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+
+  .toast.show {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  /* ALL TOOLS VIEW */
+  #all-section .tools-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    header { padding: 0 20px; }
+    .content { padding: 20px; }
+    .tools-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    .tools-grid { grid-template-columns: 1fr; }
+  }
+
+  /* DECORATIVE LINES */
+  .deco-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    margin: 20px 0;
+  }
+
+  /* PULSE RING */
+  @keyframes ring-pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+  }
+
+  .no-results span {
+    display: block;
+    font-size: 40px;
+    margin-bottom: 16px;
+  }
+
+  /* Corner decorations */
+  .corner-tl, .corner-tr, .corner-bl, .corner-br {
+    position: absolute;
+    width: 14px; height: 14px;
+    border-color: var(--gold-dim);
+    border-style: solid;
+  }
+  .corner-tl { top: 0; left: 0; border-width: 1px 0 0 1px; }
+  .corner-tr { top: 0; right: 0; border-width: 1px 1px 0 0; }
+  .corner-bl { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
+  .corner-br { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-top">
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="28,4 52,18 52,38 28,52 4,38 4,18" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+          <polygon points="28,10 46,20 46,36 28,46 10,36 10,20" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <circle cx="28" cy="28" r="8" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+          <circle cx="28" cy="28" r="3" fill="#c9a84c"/>
+          <line x1="28" y1="4" x2="28" y2="20" stroke="#c9a84c" stroke-width="1"/>
+          <line x1="28" y1="36" x2="28" y2="52" stroke="#c9a84c" stroke-width="1"/>
+          <line x1="4" y1="18" x2="20" y2="24" stroke="#c9a84c" stroke-width="1"/>
+          <line x1="36" y1="32" x2="52" y2="38" stroke="#c9a84c" stroke-width="1"/>
+          <line x1="4" y1="38" x2="20" y2="32" stroke="#c9a84c" stroke-width="1"/>
+          <line x1="36" y1="24" x2="52" y2="18" stroke="#c9a84c" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <h1>OSINT FRAMEWORK</h1>
+        <p>SIBER AKADEMİ — PROFESSIONAL INTELLIGENCE SUITE -- TOPRAK AHMET AYDOĞMUŞ</p>
+      </div>
+    </div>
+
+    <div class="header-stats">
+      <div class="stat-item">
+        <span class="stat-num" id="total-count">240</span>
+        <span class="stat-label">TOTAL TOOLS</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">22</span>
+        <span class="stat-label">CATEGORIES</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num" id="free-count">186</span>
+        <span class="stat-label">FREE TOOLS</span>
+      </div>
+    </div>
+
+    <div class="header-badge">
+      <div class="badge-dot"></div>
+      SYSTEM ACTIVE
+    </div>
+  </div>
+
+  <div class="search-section">
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Araç, kategori veya URL ara..." onkeyup="searchTools(this.value)">
+      <span class="search-icon">⌕</span>
+    </div>
+    <div class="filter-tags">
+      <button class="filter-tag active" onclick="filterByTag('all',this)">TÜM ARAÇLAR</button>
+      <button class="filter-tag" onclick="filterByTag('free',this)">ÜCRETSİZ</button>
+      <button class="filter-tag" onclick="filterByTag('web',this)">WEB TABANLI</button>
+      <button class="filter-tag" onclick="filterByTag('tool',this)">YAZILIM</button>
+      <button class="filter-tag" onclick="filterByTag('premium',this)">PREMİUM</button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-title">KATEGORİLER</div>
+
+    <button class="cat-btn active" onclick="showCat('all')">
+      <span class="cat-icon">⬡</span>
+      <span class="cat-name">TÜM ARAÇLAR</span>
+      <span class="cat-count">240</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('username')">
+      <span class="cat-icon">👤</span>
+      <span class="cat-name">Kullanıcı Adı</span>
+      <span class="cat-count">14</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('email')">
+      <span class="cat-icon">✉</span>
+      <span class="cat-name">E-Posta</span>
+      <span class="cat-count">12</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('domain')">
+      <span class="cat-icon">🌐</span>
+      <span class="cat-name">Domain / IP</span>
+      <span class="cat-count">18</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('people')">
+      <span class="cat-icon">🔍</span>
+      <span class="cat-name">Kişi Arama</span>
+      <span class="cat-count">12</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('phone')">
+      <span class="cat-icon">📞</span>
+      <span class="cat-name">Telefon</span>
+      <span class="cat-count">10</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('social')">
+      <span class="cat-icon">📡</span>
+      <span class="cat-name">Sosyal Medya</span>
+      <span class="cat-count">16</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('images')">
+      <span class="cat-icon">🖼</span>
+      <span class="cat-name">Görsel & Video</span>
+      <span class="cat-count">12</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('darkweb')">
+      <span class="cat-icon">🕷</span>
+      <span class="cat-name">Dark Web</span>
+      <span class="cat-count">8</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('search')">
+      <span class="cat-icon">🔎</span>
+      <span class="cat-name">Arama Motorları</span>
+      <span class="cat-count">12</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('network')">
+      <span class="cat-icon">🛰</span>
+      <span class="cat-name">Ağ & DNS</span>
+      <span class="cat-count">14</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('threat')">
+      <span class="cat-icon">⚠</span>
+      <span class="cat-name">Tehdit İstihbaratı</span>
+      <span class="cat-count">14</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('breach')">
+      <span class="cat-icon">🔓</span>
+      <span class="cat-name">Veri İhlali</span>
+      <span class="cat-count">10</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('geo')">
+      <span class="cat-icon">📍</span>
+      <span class="cat-name">Coğrafi Konum</span>
+      <span class="cat-count">10</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('documents')">
+      <span class="cat-icon">📄</span>
+      <span class="cat-name">Doküman & Meta</span>
+      <span class="cat-count">10</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('crypto')">
+      <span class="cat-icon">₿</span>
+      <span class="cat-name">Kripto Para</span>
+      <span class="cat-count">10</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('business')">
+      <span class="cat-icon">🏢</span>
+      <span class="cat-name">Şirket / İş</span>
+      <span class="cat-count">10</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('transport')">
+      <span class="cat-icon">✈</span>
+      <span class="cat-name">Ulaşım & Araç</span>
+      <span class="cat-count">10</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('code')">
+      <span class="cat-icon">💻</span>
+      <span class="cat-name">Kod & Geliştirici</span>
+      <span class="cat-count">10</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('iot')">
+      <span class="cat-icon">📡</span>
+      <span class="cat-name">IoT & Shodan</span>
+      <span class="cat-count">8</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('gov')">
+      <span class="cat-icon">🏛</span>
+      <span class="cat-name">Hükümet & Kayıtlar</span>
+      <span class="cat-count">10</span>
+    </button>
+    <button class="cat-btn" onclick="showCat('archive')">
+      <span class="cat-icon">🗄</span>
+      <span class="cat-name">Arşiv & Önbellek</span>
+      <span class="cat-count">8</span>
+    </button>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- SEARCH RESULTS -->
+    <div id="search-results">
+      <div class="section-header">
+        <span class="section-header-icon">🔎</span>
+        <div>
+          <h2>ARAMA SONUÇLARI</h2>
+          <p id="search-info">— ARAÇ BULUNAMADI —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="search-grid"></div>
+    </div>
+
+    <!-- ALL SECTION -->
+    <div class="cat-section visible" id="all-section">
+      <div class="section-header">
+        <span class="section-header-icon">⬡</span>
+        <div>
+          <h2>TÜM OSINT ARAÇLARI</h2>
+          <p>— 240 PROFESYONEL ARAÇ — 22 KATEGORİ —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="all-grid"></div>
+    </div>
+
+    <!-- USERNAME -->
+    <div class="cat-section" id="username-section">
+      <div class="section-header">
+        <span class="section-header-icon">👤</span>
+        <div>
+          <h2>KULLANICI ADI ARAŞTIRMA</h2>
+          <p>— SOCIAL MEDIA USERNAME LOOKUP & TRACKING —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="username-grid"></div>
+    </div>
+
+    <!-- EMAIL -->
+    <div class="cat-section" id="email-section">
+      <div class="section-header">
+        <span class="section-header-icon">✉</span>
+        <div>
+          <h2>E-POSTA İSTİHBARAT</h2>
+          <p>— EMAIL INVESTIGATION & VERIFICATION —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="email-grid"></div>
+    </div>
+
+    <!-- DOMAIN -->
+    <div class="cat-section" id="domain-section">
+      <div class="section-header">
+        <span class="section-header-icon">🌐</span>
+        <div>
+          <h2>DOMAIN / IP ANALİZİ</h2>
+          <p>— DNS, WHOIS, IP GEOLOCATION & INFRASTRUCTURE —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="domain-grid"></div>
+    </div>
+
+    <!-- PEOPLE -->
+    <div class="cat-section" id="people-section">
+      <div class="section-header">
+        <span class="section-header-icon">🔍</span>
+        <div>
+          <h2>KİŞİ ARAMA</h2>
+          <p>— PEOPLE SEARCH & PUBLIC RECORDS —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="people-grid"></div>
+    </div>
+
+    <!-- PHONE -->
+    <div class="cat-section" id="phone-section">
+      <div class="section-header">
+        <span class="section-header-icon">📞</span>
+        <div>
+          <h2>TELEFON NUMARASI</h2>
+          <p>— PHONE LOOKUP & CALLER IDENTIFICATION —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="phone-grid"></div>
+    </div>
+
+    <!-- SOCIAL -->
+    <div class="cat-section" id="social-section">
+      <div class="section-header">
+        <span class="section-header-icon">📡</span>
+        <div>
+          <h2>SOSYAL MEDYA ANALİZİ</h2>
+          <p>— SOCIAL NETWORK INTELLIGENCE & MONITORING —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="social-grid"></div>
+    </div>
+
+    <!-- IMAGES -->
+    <div class="cat-section" id="images-section">
+      <div class="section-header">
+        <span class="section-header-icon">🖼</span>
+        <div>
+          <h2>GÖRSEL & VİDEO</h2>
+          <p>— REVERSE IMAGE SEARCH & MEDIA FORENSICS —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="images-grid"></div>
+    </div>
+
+    <!-- DARK WEB -->
+    <div class="cat-section" id="darkweb-section">
+      <div class="section-header">
+        <span class="section-header-icon">🕷</span>
+        <div>
+          <h2>DARK WEB & DEEP WEB</h2>
+          <p>— TOR NETWORK & UNDERGROUND INTELLIGENCE —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="darkweb-grid"></div>
+    </div>
+
+    <!-- SEARCH ENGINES -->
+    <div class="cat-section" id="search-section">
+      <div class="section-header">
+        <span class="section-header-icon">🔎</span>
+        <div>
+          <h2>ARAMA MOTORLARI</h2>
+          <p>— META SEARCH & SPECIALIZED ENGINES —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="search-grid2"></div>
+    </div>
+
+    <!-- NETWORK -->
+    <div class="cat-section" id="network-section">
+      <div class="section-header">
+        <span class="section-header-icon">🛰</span>
+        <div>
+          <h2>AĞ & DNS ANALİZİ</h2>
+          <p>— NETWORK RECON, DNS ENUMERATION & SSL/TLS —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="network-grid"></div>
+    </div>
+
+    <!-- THREAT INTEL -->
+    <div class="cat-section" id="threat-section">
+      <div class="section-header">
+        <span class="section-header-icon">⚠</span>
+        <div>
+          <h2>TEHDİT İSTİHBARATI</h2>
+          <p>— MALWARE, IOC & CYBER THREAT INTELLIGENCE —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="threat-grid"></div>
+    </div>
+
+    <!-- BREACH -->
+    <div class="cat-section" id="breach-section">
+      <div class="section-header">
+        <span class="section-header-icon">🔓</span>
+        <div>
+          <h2>VERİ İHLALİ & SIZDIRILAN</h2>
+          <p>— DATA BREACH DATABASES & CREDENTIAL EXPOSURE —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="breach-grid"></div>
+    </div>
+
+    <!-- GEO -->
+    <div class="cat-section" id="geo-section">
+      <div class="section-header">
+        <span class="section-header-icon">📍</span>
+        <div>
+          <h2>COĞRAFİ KONUM</h2>
+          <p>— GEOLOCATION, SATELLITE & MAPPING TOOLS —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="geo-grid"></div>
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div class="cat-section" id="documents-section">
+      <div class="section-header">
+        <span class="section-header-icon">📄</span>
+        <div>
+          <h2>DOKÜMAN & METADATA</h2>
+          <p>— FILE METADATA EXTRACTION & DOCUMENT FORENSICS —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="documents-grid"></div>
+    </div>
+
+    <!-- CRYPTO -->
+    <div class="cat-section" id="crypto-section">
+      <div class="section-header">
+        <span class="section-header-icon">₿</span>
+        <div>
+          <h2>KRİPTO PARA</h2>
+          <p>— BLOCKCHAIN ANALYSIS & TRANSACTION TRACING —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="crypto-grid"></div>
+    </div>
+
+    <!-- BUSINESS -->
+    <div class="cat-section" id="business-section">
+      <div class="section-header">
+        <span class="section-header-icon">🏢</span>
+        <div>
+          <h2>ŞİRKET & İŞ DÜNYASI</h2>
+          <p>— CORPORATE INTELLIGENCE & BUSINESS RECORDS —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="business-grid"></div>
+    </div>
+
+    <!-- TRANSPORT -->
+    <div class="cat-section" id="transport-section">
+      <div class="section-header">
+        <span class="section-header-icon">✈</span>
+        <div>
+          <h2>ULAŞIM & ARAÇ</h2>
+          <p>— AVIATION, MARITIME & VEHICLE TRACKING —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="transport-grid"></div>
+    </div>
+
+    <!-- CODE -->
+    <div class="cat-section" id="code-section">
+      <div class="section-header">
+        <span class="section-header-icon">💻</span>
+        <div>
+          <h2>KOD & GELİŞTİRİCİ</h2>
+          <p>— CODE REPOSITORIES & DEVELOPER INTELLIGENCE —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="code-grid"></div>
+    </div>
+
+    <!-- IOT -->
+    <div class="cat-section" id="iot-section">
+      <div class="section-header">
+        <span class="section-header-icon">📡</span>
+        <div>
+          <h2>IoT & SHODAN</h2>
+          <p>— INTERNET OF THINGS & CONNECTED DEVICE SEARCH —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="iot-grid"></div>
+    </div>
+
+    <!-- GOV -->
+    <div class="cat-section" id="gov-section">
+      <div class="section-header">
+        <span class="section-header-icon">🏛</span>
+        <div>
+          <h2>HÜKÜMET & KAMU KAYITLARI</h2>
+          <p>— GOVERNMENT RECORDS & PUBLIC DATA —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="gov-grid"></div>
+    </div>
+
+    <!-- ARCHIVE -->
+    <div class="cat-section" id="archive-section">
+      <div class="section-header">
+        <span class="section-header-icon">🗄</span>
+        <div>
+          <h2>ARŞİV & ÖNBELLEK</h2>
+          <p>— WEB ARCHIVES, CACHED PAGES & HISTORICAL DATA —</p>
+        </div>
+      </div>
+      <div class="tools-grid" id="archive-grid"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-corner tl"></div>
+    <div class="modal-corner tr"></div>
+    <div class="modal-corner bl"></div>
+    <div class="modal-corner br"></div>
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+    <div class="modal-tool-logo" id="modal-logo"></div>
+    <h3 id="modal-name"></h3>
+    <div class="modal-url" id="modal-url"></div>
+    <div class="modal-desc" id="modal-desc"></div>
+    <div class="modal-tags" id="modal-tags"></div>
+    <a id="modal-btn" class="modal-btn" href="#" target="_blank" rel="noopener noreferrer">
+      ↗ ARACI AÇ
+    </a>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// TOOL DATABASE — 240+ TOOLS
+// ============================================================
+const tools = [
+
+  // ===== USERNAME =====
+  { id:'u1', cat:'username', name:'Sherlock', url:'https://github.com/sherlock-project/sherlock', icon:'🕵', desc:'Python tabanlı sosyal medya kullanıcı adı araştırma aracı. 300+ platformda eş zamanlı tarama yapar.', tags:['free','tool'] },
+  { id:'u2', cat:'username', name:'WhatsMyName', url:'https://whatsmyname.app', icon:'🔍', desc:'400+ sosyal platform üzerinde kullanıcı adı varlığını sorgular. JSON tabanlı açık kaynak veritabanı.', tags:['free','web'] },
+  { id:'u3', cat:'username', name:'Namechk', url:'https://namechk.com', icon:'✔', desc:'Sosyal ağlar ve domain adlarında kullanıcı adı müsaitliğini kontrol eder.', tags:['free','web'] },
+  { id:'u4', cat:'username', name:'UserSearch', url:'https://usersearch.org', icon:'👁', desc:'100+ sosyal platform üzerinde kullanıcı adı sorgulama ve hesap keşfi.', tags:['free','web'] },
+  { id:'u5', cat:'username', name:'Maigret', url:'https://github.com/soxoj/maigret', icon:'🎭', desc:'Profil detaylarını toplayarak 2500+ sitede kullanıcı adı araştırması yapan gelişmiş Python aracı.', tags:['free','tool'] },
+  { id:'u6', cat:'username', name:'Knowem', url:'https://knowem.com', icon:'🌐', desc:'500+ sosyal ağda kullanıcı adı ve marka varlığı kontrol servisi.', tags:['free','web'] },
+  { id:'u7', cat:'username', name:'Social Searcher', url:'https://www.social-searcher.com', icon:'🔄', desc:'Gerçek zamanlı sosyal medya arama motoru. Hashtag ve kullanıcı analizi.', tags:['free','web'] },
+  { id:'u8', cat:'username', name:'Instant Username', url:'https://instantusername.com', icon:'⚡', desc:'Anlık kullanıcı adı kontrolü. 100+ platform desteği ile hızlı tarama.', tags:['free','web'] },
+  { id:'u9', cat:'username', name:'CheckUsernames', url:'https://checkusernames.com', icon:'🛡', desc:'160+ sosyal ağda kullanıcı adı ve marka araştırma aracı.', tags:['free','web'] },
+  { id:'u10', cat:'username', name:'NameVine', url:'https://namevine.com', icon:'🍇', desc:'Sosyal medya ve domainlerde kullanıcı adı müsaitliği toplu kontrolü.', tags:['free','web'] },
+  { id:'u11', cat:'username', name:'UserRecon', url:'https://github.com/thewhiteh4t/userrecon', icon:'🕵', desc:'Sosyal medya kullanıcı adı araştırması için shell script tabanlı araç.', tags:['free','tool'] },
+  { id:'u12', cat:'username', name:'Blackbird', url:'https://github.com/p1ngul1n0/blackbird', icon:'🐦', desc:'OSINT aracı — kullanıcı adı/e-posta ile sosyal platform keşfi yapar.', tags:['free','tool'] },
+  { id:'u13', cat:'username', name:'Snoop', url:'https://github.com/snooppr/snoop', icon:'👀', desc:'3000+ platformda kullanıcı adı takibi. Türkçe site desteği mevcuttur.', tags:['free','tool'] },
+  { id:'u14', cat:'username', name:'Nexfil', url:'https://github.com/thewhiteh4t/nexfil', icon:'🌀', desc:'OSINT tabanlı gelişmiş sosyal profil keşif aracı. 350+ platform.', tags:['free','tool'] },
+
+  // ===== EMAIL =====
+  { id:'e1', cat:'email', name:'Hunter.io', url:'https://hunter.io', icon:'🏹', desc:'Domain bazlı e-posta adresi keşfi ve doğrulama. 200M+ veritabanı.', tags:['free','web','api'] },
+  { id:'e2', cat:'email', name:'Have I Been Pwned', url:'https://haveibeenpwned.com', icon:'🔔', desc:'E-posta adresinin veri ihlallerinde yer alıp almadığını kontrol eder.', tags:['free','web'] },
+  { id:'e3', cat:'email', name:'EmailRep', url:'https://emailrep.io', icon:'📊', desc:'E-posta adresi itibar ve risk analizi. Şüpheli hesap tespiti.', tags:['free','web','api'] },
+  { id:'e4', cat:'email', name:'Holehe', url:'https://github.com/megadose/holehe', icon:'🦔', desc:'E-posta adresiyle kayıtlı sosyal medya hesaplarını tespit eden Python aracı.', tags:['free','tool'] },
+  { id:'e5', cat:'email', name:'Epieos', url:'https://epieos.com', icon:'🔬', desc:'E-posta ve telefon ile Google/sosyal platform hesap analizi.', tags:['free','web'] },
+  { id:'e6', cat:'email', name:'Email Header Analyzer', url:'https://mxtoolbox.com/EmailHeaders.aspx', icon:'📋', desc:'E-posta header analizi. Kaynak IP ve sunucu rotasını görselleştirir.', tags:['free','web'] },
+  { id:'e7', cat:'email', name:'Verify Email Address', url:'https://verify-email.org', icon:'✅', desc:'SMTP doğrulama ile e-posta adresinin gerçekten var olup olmadığını test eder.', tags:['free','web'] },
+  { id:'e8', cat:'email', name:'MailTester', url:'https://www.mail-tester.com', icon:'📬', desc:'E-posta spam skoru ve teslimat kalitesi analiz aracı.', tags:['free','web'] },
+  { id:'e9', cat:'email', name:'GHunt', url:'https://github.com/mxrch/GHunt', icon:'🔎', desc:'Google hesabından kapsamlı OSINT bilgisi çıkaran Python aracı.', tags:['free','tool'] },
+  { id:'e10', cat:'email', name:'Infoga', url:'https://github.com/m4ll0k/Infoga', icon:'📡', desc:'E-posta bilgisi toplama aracı. Farklı kaynaklardan veri aggragasyonu.', tags:['free','tool'] },
+  { id:'e11', cat:'email', name:'Buster', url:'https://github.com/sham00n/buster', icon:'💥', desc:'E-posta adresi ile sosyal ağlarda profil araştırması yapan araç.', tags:['free','tool'] },
+  { id:'e12', cat:'email', name:'ProtonMail Header', url:'https://proton.me/support/email-headers', icon:'🛡', desc:'ProtonMail e-posta header analizi ve kaynak IP takip rehberi.', tags:['free','web'] },
+
+  // ===== DOMAIN / IP =====
+  { id:'d1', cat:'domain', name:'Shodan', url:'https://www.shodan.io', icon:'🛰', desc:'İnternete bağlı cihazları, servisleri ve açık portları tarar. OSINT\'in tanrısı.', tags:['free','web','api'] },
+  { id:'d2', cat:'domain', name:'Censys', url:'https://search.censys.io', icon:'🔭', desc:'İnternet altyapısı keşfi. SSL sertifikası ve host analizi.', tags:['free','web'] },
+  { id:'d3', cat:'domain', name:'ViewDNS.info', url:'https://viewdns.info', icon:'🌐', desc:'DNS lookup, WHOIS, reverse IP ve port tarama araçlarının koleksiyonu.', tags:['free','web'] },
+  { id:'d4', cat:'domain', name:'DNSdumpster', url:'https://dnsdumpster.com', icon:'🗺', desc:'Domain araştırma ve DNS keşfi. Subdomain haritalama için temel araç.', tags:['free','web'] },
+  { id:'d5', cat:'domain', name:'Whois.domaintools', url:'https://whois.domaintools.com', icon:'📋', desc:'Gelişmiş WHOIS sorgulama ve domain geçmişi araştırma platformu.', tags:['free','web'] },
+  { id:'d6', cat:'domain', name:'SecurityTrails', url:'https://securitytrails.com', icon:'🔒', desc:'Geçmiş DNS kayıtları, subdomain listesi ve IP geçmişi analizi.', tags:['free','web','api'] },
+  { id:'d7', cat:'domain', name:'IPinfo', url:'https://ipinfo.io', icon:'📍', desc:'IP adresi bilgisi, organizasyon, ASN ve coğrafi konum verileri.', tags:['free','web','api'] },
+  { id:'d8', cat:'domain', name:'VirusTotal', url:'https://www.virustotal.com', icon:'🦠', desc:'URL, domain, IP ve dosyaları 70+ güvenlik motoruyla analiz eder.', tags:['free','web'] },
+  { id:'d9', cat:'domain', name:'Robtex', url:'https://www.robtex.com', icon:'🤖', desc:'DNS grafik analizi. Domain ilişkileri ve ağ haritası görselleştirmesi.', tags:['free','web'] },
+  { id:'d10', cat:'domain', name:'BuiltWith', url:'https://builtwith.com', icon:'🔧', desc:'Web sitesi teknoloji stack\'i keşfi. Framework, CMS ve araç tespiti.', tags:['free','web'] },
+  { id:'d11', cat:'domain', name:'Netcraft', url:'https://www.netcraft.com', icon:'🕸', desc:'Site raporları, phishing tespiti ve web sunucu teknoloji analizi.', tags:['free','web'] },
+  { id:'d12', cat:'domain', name:'crt.sh', url:'https://crt.sh', icon:'🔑', desc:'SSL sertifika şeffaflık kayıtları. Subdomain keşfinde kritik kaynak.', tags:['free','web'] },
+  { id:'d13', cat:'domain', name:'Threatcrowd', url:'https://www.threatcrowd.org', icon:'⚡', desc:'Domain, IP ve e-posta için tehdit zekası grafik görselleştirmesi.', tags:['free','web'] },
+  { id:'d14', cat:'domain', name:'PassiveDNS.mnemonic', url:'https://passivedns.mnemonic.no', icon:'🧠', desc:'Pasif DNS veritabanı. Domain ve IP geçmiş çözümlemeleri.', tags:['free','web'] },
+  { id:'d15', cat:'domain', name:'Spyse', url:'https://spyse.com', icon:'🕵', desc:'Kapsamlı internet altyapısı keşif platformu. OSINT all-in-one.', tags:['premium','web'] },
+  { id:'d16', cat:'domain', name:'Urlscan.io', url:'https://urlscan.io', icon:'🔍', desc:'URL tarama ve web site analizi. DOM, ekran görüntüsü ve network data.', tags:['free','web'] },
+  { id:'d17', cat:'domain', name:'Sublist3r', url:'https://github.com/aboul3la/Sublist3r', icon:'📑', desc:'Python tabanlı hızlı subdomain keşif aracı. Birden fazla kaynaktan toplar.', tags:['free','tool'] },
+  { id:'d18', cat:'domain', name:'Amass', url:'https://github.com/owasp-amass/amass', icon:'🌊', desc:'OWASP\'ın gelişmiş ağ haritalama ve saldırı yüzeyi keşif aracı.', tags:['free','tool'] },
+
+  // ===== PEOPLE SEARCH =====
+  { id:'p1', cat:'people', name:'Pipl', url:'https://pipl.com', icon:'🧬', desc:'Dünyanın en kapsamlı kişi arama motoru. Derin web dahil tarama yapar.', tags:['premium','web'] },
+  { id:'p2', cat:'people', name:'Spokeo', url:'https://www.spokeo.com', icon:'📖', desc:'Kişi arama, adres geçmişi, telefon ve sosyal ağ bilgisi platformu.', tags:['premium','web'] },
+  { id:'p3', cat:'people', name:'Intelius', url:'https://www.intelius.com', icon:'🔎', desc:'Kamu kaydı tabanlı kapsamlı kişi araştırma ve background check servisi.', tags:['premium','web'] },
+  { id:'p4', cat:'people', name:'TruthFinder', url:'https://www.truthfinder.com', icon:'🔦', desc:'Kişi araştırma, suç kaydı ve sosyal profil keşif platformu.', tags:['premium','web'] },
+  { id:'p5', cat:'people', name:'BeenVerified', url:'https://www.beenverified.com', icon:'✔', desc:'Kişi, telefon, adres ve araç kayıtları araştırma servisi.', tags:['premium','web'] },
+  { id:'p6', cat:'people', name:'FamilyTreeNow', url:'https://www.familytreenow.com', icon:'🌳', desc:'Ücretsiz kişi arama ve aile ağacı araştırma aracı.', tags:['free','web'] },
+  { id:'p7', cat:'people', name:'FastPeopleSearch', url:'https://www.fastpeoplesearch.com', icon:'⚡', desc:'Adres ve telefon numarasıyla ücretsiz kişi arama servisi.', tags:['free','web'] },
+  { id:'p8', cat:'people', name:'411.com', url:'https://www.411.com', icon:'📞', desc:'ABD bazlı kişi, telefon ve iş yeri arama dizini.', tags:['free','web'] },
+  { id:'p9', cat:'people', name:'Yasni', url:'https://www.yasni.com', icon:'🌍', desc:'Avrupa merkezli kişi arama motoru. İsim ve e-posta ile sorgulama.', tags:['free','web'] },
+  { id:'p10', cat:'people', name:'ZabaSearch', url:'https://www.zabasearch.com', icon:'🗃', desc:'ABD kamu kaynaklarından kişi bilgisi toplayan ücretsiz araç.', tags:['free','web'] },
+  { id:'p11', cat:'people', name:'PeekYou', url:'https://www.peekyou.com', icon:'👀', desc:'Sosyal medya ve web kaynaklarını birleştiren kişi arama platformu.', tags:['free','web'] },
+  { id:'p12', cat:'people', name:'Webmii', url:'https://webmii.com', icon:'🌐', desc:'İsme göre web görünürlüğü analizi ve sosyal profil keşfi.', tags:['free','web'] },
+
+  // ===== PHONE =====
+  { id:'ph1', cat:'phone', name:'Truecaller', url:'https://www.truecaller.com', icon:'📱', desc:'Dünya\'nın en büyük caller ID veritabanı. 400M+ kullanıcı kaydı.', tags:['free','web'] },
+  { id:'ph2', cat:'phone', name:'NumLookup', url:'https://www.numlookup.com', icon:'🔢', desc:'Ücretsiz telefon numarası arama ve operatör tespiti servisi.', tags:['free','web'] },
+  { id:'ph3', cat:'phone', name:'SpyDialer', url:'https://www.spydialer.com', icon:'🕵', desc:'Telefon numarası, isim ve adres sorgulama. Ücretsiz reverse lookup.', tags:['free','web'] },
+  { id:'ph4', cat:'phone', name:'CallerSmart', url:'https://www.callersmart.com', icon:'💡', desc:'Bilinmeyen numaraları topluluk kaynaklı veri ile araştırma platformu.', tags:['free','web'] },
+  { id:'ph5', cat:'phone', name:'FreeCarrierLookup', url:'https://freecarrierlookup.com', icon:'📡', desc:'Telefon numarasının operatörünü ve hat türünü belirleme servisi.', tags:['free','web'] },
+  { id:'ph6', cat:'phone', name:'PhoneInfoga', url:'https://github.com/sundowndev/phoneinfoga', icon:'🔬', desc:'Uluslararası telefon numarası araştırma ve metadata toplama aracı.', tags:['free','tool'] },
+  { id:'ph7', cat:'phone', name:'OKCaller', url:'https://www.okcaller.com', icon:'✅', desc:'Spam ve dolandırıcı numara tabanı ile kullanıcı raporları veritabanı.', tags:['free','web'] },
+  { id:'ph8', cat:'phone', name:'WhoCalledUS', url:'https://www.whocalledus.com', icon:'❓', desc:'Bilinmeyen numaralar için kullanıcı yorumu tabanlı araştırma sitesi.', tags:['free','web'] },
+  { id:'ph9', cat:'phone', name:'800notes', url:'https://800notes.com', icon:'📝', desc:'Topluluk tabanlı telefon numarası şikayet ve araştırma platformu.', tags:['free','web'] },
+  { id:'ph10', cat:'phone', name:'Sync.me', url:'https://sync.me', icon:'🔄', desc:'Sosyal medya profilleriyle eşleşen telefon numarası arama servisi.', tags:['free','web'] },
+
+  // ===== SOCIAL MEDIA =====
+  { id:'sm1', cat:'social', name:'Twint', url:'https://github.com/twintproject/twint', icon:'🐦', desc:'Twitter/X OSINT aracı. API gerektirmeden gelişmiş tweet ve hesap analizi.', tags:['free','tool'] },
+  { id:'sm2', cat:'social', name:'Social-Analyzer', url:'https://github.com/qeeqbox/social-analyzer', icon:'📊', desc:'1000+ sosyal platform üzerinde profil araştırması yapan Python çerçevesi.', tags:['free','tool'] },
+  { id:'sm3', cat:'social', name:'InstaLoader', url:'https://github.com/instaloader/instaloader', icon:'📸', desc:'Instagram profil, post ve story verisi indirme ve analiz aracı.', tags:['free','tool'] },
+  { id:'sm4', cat:'social', name:'Osintgram', url:'https://github.com/Datalux/Osintgram', icon:'📷', desc:'Instagram hesabı üzerinden OSINT. Takipçi, takip, konum ve hashtag analizi.', tags:['free','tool'] },
+  { id:'sm5', cat:'social', name:'Snscrape', url:'https://github.com/JustAnotherArchivist/snscrape', icon:'🕸', desc:'Twitter, Facebook, Instagram ve daha fazlası için sosyal ağ scraper.', tags:['free','tool'] },
+  { id:'sm6', cat:'social', name:'Mention', url:'https://mention.com', icon:'🔔', desc:'Sosyal medya ve web üzerinde marka ve kişi takip platformu.', tags:['premium','web'] },
+  { id:'sm7', cat:'social', name:'Socialblade', url:'https://socialblade.com', icon:'📈', desc:'YouTube, Twitch, Instagram kanal istatistikleri ve büyüme analizi.', tags:['free','web'] },
+  { id:'sm8', cat:'social', name:'LinkedIn OSINT', url:'https://www.linkedin.com', icon:'💼', desc:'Profesyonel network araştırması. Boolean arama ile gelişmiş profil keşfi.', tags:['free','web'] },
+  { id:'sm9', cat:'social', name:'Telegram Analytics', url:'https://tgstat.com', icon:'✈', desc:'Telegram kanal istatistikleri, büyüme ve içerik analiz platformu.', tags:['free','web'] },
+  { id:'sm10', cat:'social', name:'Reddit Investigator', url:'https://www.redditinvestigator.com', icon:'🤖', desc:'Reddit kullanıcı aktivitesi, karma geçmişi ve post analizi aracı.', tags:['free','web'] },
+  { id:'sm11', cat:'social', name:'Pushshift Reddit', url:'https://pushshift.io', icon:'📦', desc:'Reddit post ve yorum arşivi. Silinmiş içerik dahil veri analizi.', tags:['free','web','api'] },
+  { id:'sm12', cat:'social', name:'VKontakte Search', url:'https://vk.com/people', icon:'🇷🇺', desc:'VK sosyal ağında kişi ve profil araştırması. Rus sosyal medya OSINT.', tags:['free','web'] },
+  { id:'sm13', cat:'social', name:'Facebook OSINT', url:'https://www.facebook.com', icon:'👥', desc:'Facebook graph arama teknikleri ve profil analizi metodları.', tags:['free','web'] },
+  { id:'sm14', cat:'social', name:'TikTok OSINT', url:'https://www.tiktok.com', icon:'🎵', desc:'TikTok profil ve içerik araştırması. Hesap büyüme ve etkileşim analizi.', tags:['free','web'] },
+  { id:'sm15', cat:'social', name:'Discord Lookup', url:'https://discordlookup.com', icon:'💬', desc:'Discord sunucu ve kullanıcı ID analizi ve metadata çıkarma.', tags:['free','web'] },
+  { id:'sm16', cat:'social', name:'SnapMap', url:'https://map.snapchat.com', icon:'👻', desc:'Snapchat snap haritası üzerinden konum bazlı içerik araştırması.', tags:['free','web'] },
+
+  // ===== IMAGES & VIDEO =====
+  { id:'i1', cat:'images', name:'TinEye', url:'https://tineye.com', icon:'👁', desc:'Görsel arama ve benzer resim bulma motoru. 60+ milyar indeksli görsel.', tags:['free','web'] },
+  { id:'i2', cat:'images', name:'Google Reverse Image', url:'https://images.google.com', icon:'🔍', desc:'Google görsel arama. Kaynak ve benzer görselleri bulmak için kullanılır.', tags:['free','web'] },
+  { id:'i3', cat:'images', name:'Yandex Images', url:'https://yandex.com/images', icon:'🌐', desc:'Yandex görsel araması. Yüz tanıma ile güçlü reverse image search.', tags:['free','web'] },
+  { id:'i4', cat:'images', name:'Bing Visual Search', url:'https://www.bing.com/visualsearch', icon:'🔷', desc:'Microsoft Bing görsel arama ve nesne tanıma aracı.', tags:['free','web'] },
+  { id:'i5', cat:'images', name:'FaceCheck.ID', url:'https://facecheck.id', icon:'😶', desc:'Yüz tanıma tabanlı görsel arama. İnternet üzerinden kişi tespiti.', tags:['free','web'] },
+  { id:'i6', cat:'images', name:'PimEyes', url:'https://pimeyes.com', icon:'👀', desc:'Gelişmiş yüz tanıma ve reverse image search platformu.', tags:['premium','web'] },
+  { id:'i7', cat:'images', name:'ExifTool', url:'https://exiftool.org', icon:'📷', desc:'Fotoğraf metadata (EXIF) analizi. GPS, kamera modeli ve tarih verisi.', tags:['free','tool'] },
+  { id:'i8', cat:'images', name:'Jeffrey\'s Exif Viewer', url:'https://exifdata.com', icon:'🔬', desc:'Online EXIF görüntüleyici. Fotoğraf gizli metadata analizi.', tags:['free','web'] },
+  { id:'i9', cat:'images', name:'InVID WeVerify', url:'https://weverify.eu/verification-plugin', icon:'📹', desc:'Video doğrulama ve sahte haber tespiti. YouTube ve sosyal medya video analizi.', tags:['free','tool'] },
+  { id:'i10', cat:'images', name:'FotoForensics', url:'https://fotoforensics.com', icon:'🔦', desc:'Fotoğraf manipülasyon tespiti. ELA (Error Level Analysis) analizi.', tags:['free','web'] },
+  { id:'i11', cat:'images', name:'Izitru', url:'https://izitru.com', icon:'✅', desc:'Orijinal fotoğraf doğrulama ve manipülasyon tespit servisi.', tags:['free','web'] },
+  { id:'i12', cat:'images', name:'Forensically Beta', url:'https://29a.ch/photo-forensics', icon:'🔬', desc:'Gelişmiş fotoğraf adli analizi. Clone detection ve metadata analizi.', tags:['free','web'] },
+
+  // ===== DARK WEB =====
+  { id:'dw1', cat:'darkweb', name:'Ahmia', url:'https://ahmia.fi', icon:'🕷', desc:'Tor ağındaki .onion sitelerini indeksleyen arama motoru.', tags:['free','web'] },
+  { id:'dw2', cat:'darkweb', name:'Dark Web Monitor', url:'https://haveibeenpwned.com', icon:'🌑', desc:'E-posta adresinin dark web veritabanlarında görünüp görünmediğini kontrol eder.', tags:['free','web'] },
+  { id:'dw3', cat:'darkweb', name:'OnionScan', url:'https://github.com/s-rah/onionscan', icon:'🧅', desc:'.onion servislerin güvenlik analizi ve metadata çıkarma aracı.', tags:['free','tool'] },
+  { id:'dw4', cat:'darkweb', name:'Tor Project', url:'https://www.torproject.org', icon:'🧅', desc:'Anonim internet erişimi ve .onion ağına giriş için resmi Tor tarayıcısı.', tags:['free','tool'] },
+  { id:'dw5', cat:'darkweb', name:'DarkSearch', url:'https://darksearch.io', icon:'🔍', desc:'.onion siteleri için gerçek zamanlı dark web arama motoru.', tags:['free','web'] },
+  { id:'dw6', cat:'darkweb', name:'Hunchly Dark Web', url:'https://www.hunch.ly', icon:'🔭', desc:'Dark web araştırmacıları için otomatik veri yakalama ve arşivleme.', tags:['premium','tool'] },
+  { id:'dw7', cat:'darkweb', name:'Ransomwatch', url:'https://ransomwch.gitbook.io', icon:'💀', desc:'Aktif ransomware gruplarının dark web leak sitelerini takip eder.', tags:['free','web'] },
+  { id:'dw8', cat:'darkweb', name:'IntelX Dark Web', url:'https://intelx.io', icon:'🕵', desc:'Dark web, Tor, I2P ve leak sitelerinde gelişmiş arama motoru.', tags:['free','web'] },
+
+  // ===== SEARCH ENGINES =====
+  { id:'se1', cat:'search', name:'Google Dorks', url:'https://www.exploit-db.com/google-hacking-database', icon:'🔍', desc:'Google\'ın gelişmiş operatörleriyle hassas bilgi keşfi. GHDB veritabanı.', tags:['free','web'] },
+  { id:'se2', cat:'search', name:'DuckDuckGo', url:'https://duckduckgo.com', icon:'🦆', desc:'Gizlilik odaklı arama motoru. OSINT araştırmalarında iz bırakmadan arama.', tags:['free','web'] },
+  { id:'se3', cat:'search', name:'Startpage', url:'https://www.startpage.com', icon:'🚀', desc:'Anonim Google araması. Kişisel veri toplamayan proxy arama servisi.', tags:['free','web'] },
+  { id:'se4', cat:'search', name:'Wayback Machine', url:'https://web.archive.org', icon:'📚', desc:'800 milyar sayfanın arşivi. Silinmiş içerikleri ve eski siteleri görüntüle.', tags:['free','web'] },
+  { id:'se5', cat:'search', name:'Carrot2', url:'https://search.carrot2.org', icon:'🥕', desc:'Kümeleme tabanlı arama motoru. Sonuçları konulara göre otomatik gruplar.', tags:['free','web'] },
+  { id:'se6', cat:'search', name:'Wolfram Alpha', url:'https://www.wolframalpha.com', icon:'🐺', desc:'Hesaplamalı bilgi motoru. İstatistik, coğrafya ve kişi verileri sorgulama.', tags:['free','web'] },
+  { id:'se7', cat:'search', name:'Pipl Search', url:'https://pipl.com', icon:'👥', desc:'Kişi odaklı derin web arama motoru. Sosyal ve kamu kayıtları entegrasyonu.', tags:['premium','web'] },
+  { id:'se8', cat:'search', name:'Yippy Search', url:'https://yippy.com', icon:'🔶', desc:'Küme tabanlı meta arama motoru. Anlamlı içerik gruplama.', tags:['free','web'] },
+  { id:'se9', cat:'search', name:'Dogpile', url:'https://www.dogpile.com', icon:'🐾', desc:'Google, Yahoo ve Bing sonuçlarını birleştiren meta arama motoru.', tags:['free','web'] },
+  { id:'se10', cat:'search', name:'Million Short', url:'https://millionshort.com', icon:'✂', desc:'İlk 100/10K/1M sonucu filtreleyen arama motoru. Gömülü siteleri bulur.', tags:['free','web'] },
+  { id:'se11', cat:'search', name:'Boardreader', url:'https://boardreader.com', icon:'💬', desc:'Forum ve mesaj panosu odaklı arama motoru.', tags:['free','web'] },
+  { id:'se12', cat:'search', name:'Searx', url:'https://searx.space', icon:'🔓', desc:'Açık kaynak, gizlilik odaklı meta arama motoru. Kendi barındırma seçeneği.', tags:['free','web'] },
+
+  // ===== NETWORK & DNS =====
+  { id:'n1', cat:'network', name:'Nmap', url:'https://nmap.org', icon:'🗺', desc:'En güçlü ağ tarayıcı ve port scanner. Service ve OS fingerprinting.', tags:['free','tool'] },
+  { id:'n2', cat:'network', name:'MXToolbox', url:'https://mxtoolbox.com', icon:'📧', desc:'DNS, MX, SPF, DMARC ve blacklist kontrol araçlarının kapsamlı seti.', tags:['free','web'] },
+  { id:'n3', cat:'network', name:'DNSlytics', url:'https://dnslytics.com', icon:'📊', desc:'Reverse DNS, IP ve domain araştırma. Ağ analiz platformu.', tags:['free','web'] },
+  { id:'n4', cat:'network', name:'Bgp.he.net', url:'https://bgp.he.net', icon:'🌐', desc:'BGP routing bilgisi, ASN analizi ve IP blok araştırma platformu.', tags:['free','web'] },
+  { id:'n5', cat:'network', name:'Threatminer', url:'https://www.threatminer.org', icon:'⚠', desc:'Domain, IP ve hash için tehdit istihbaratı toplama ve analiz.', tags:['free','web'] },
+  { id:'n6', cat:'network', name:'SSL Labs', url:'https://www.ssllabs.com/ssltest', icon:'🔐', desc:'SSL/TLS sertifika kalitesi ve güvenlik açığı analizi. A+ skor kontrolü.', tags:['free','web'] },
+  { id:'n7', cat:'network', name:'Shodan CLi', url:'https://cli.shodan.io', icon:'💻', desc:'Shodan\'ın komut satırı arayüzü. Otomatik tarama ve veri çıkarma.', tags:['free','tool'] },
+  { id:'n8', cat:'network', name:'Masscan', url:'https://github.com/robertdavidgraham/masscan', icon:'🌊', desc:'İnternet ölçekli en hızlı port tarayıcı. Shodan benzeri kendi tarama.', tags:['free','tool'] },
+  { id:'n9', cat:'network', name:'Traceroute.org', url:'https://traceroute.org', icon:'📡', desc:'Küresel traceroute ağı. Paket yolu görselleştirme ve latency analizi.', tags:['free','web'] },
+  { id:'n10', cat:'network', name:'ARIN Whois', url:'https://search.arin.net', icon:'🏢', desc:'Kuzey Amerika IP adres ve ASN kayıtları. ARIN resmi WHOIS servisi.', tags:['free','web'] },
+  { id:'n11', cat:'network', name:'RIPE NCC', url:'https://www.ripe.net', icon:'🌍', desc:'Avrupa, Orta Doğu ve Türkiye IP kayıtları. RIPE Whois veritabanı.', tags:['free','web'] },
+  { id:'n12', cat:'network', name:'LACNIC', url:'https://www.lacnic.net', icon:'🌎', desc:'Latin Amerika IP adresi ve ASN kayıt veritabanı.', tags:['free','web'] },
+  { id:'n13', cat:'network', name:'Wireshark', url:'https://www.wireshark.org', icon:'🦈', desc:'Dünya standartı ağ protokol analiz aracı. Paket yakalama ve analiz.', tags:['free','tool'] },
+  { id:'n14', cat:'network', name:'Zeek IDS', url:'https://zeek.org', icon:'🔬', desc:'Ağ güvenlik izleme ve protokol analiz platformu. Log tabanlı analiz.', tags:['free','tool'] },
+
+  // ===== THREAT INTELLIGENCE =====
+  { id:'t1', cat:'threat', name:'VirusTotal', url:'https://www.virustotal.com', icon:'🦠', desc:'70+ güvenlik motoru ile URL, domain, IP, dosya ve hash analizi.', tags:['free','web'] },
+  { id:'t2', cat:'threat', name:'AbuseIPDB', url:'https://www.abuseipdb.com', icon:'🚫', desc:'Kötü amaçlı IP adresi raporlama ve araştırma topluluk veritabanı.', tags:['free','web','api'] },
+  { id:'t3', cat:'threat', name:'OTX AlienVault', url:'https://otx.alienvault.com', icon:'👽', desc:'Açık tehdit istihbaratı paylaşım platformu. IOC ve pulse veritabanı.', tags:['free','web'] },
+  { id:'t4', cat:'threat', name:'IBM X-Force', url:'https://exchange.xforce.ibmcloud.com', icon:'🔵', desc:'Tehdit istihbaratı paylaşım platformu. IP/URL/hash araştırma.', tags:['free','web'] },
+  { id:'t5', cat:'threat', name:'Recorded Future', url:'https://www.recordedfuture.com', icon:'🎯', desc:'Gerçek zamanlı tehdit istihbaratı platformu. AI tabanlı risk skoru.', tags:['premium','web'] },
+  { id:'t6', cat:'threat', name:'Hybrid Analysis', url:'https://www.hybrid-analysis.com', icon:'🧬', desc:'Ücretsiz malware analiz servisi. Statik ve dinamik sandbox analizi.', tags:['free','web'] },
+  { id:'t7', cat:'threat', name:'ANY.RUN', url:'https://app.any.run', icon:'▶', desc:'İnteraktif online malware sandbox. Gerçek zamanlı davranış analizi.', tags:['free','web'] },
+  { id:'t8', cat:'threat', name:'MalwareBazaar', url:'https://bazaar.abuse.ch', icon:'🦠', desc:'Malware örnek paylaşım platformu. Hash ve IOC araştırma veritabanı.', tags:['free','web'] },
+  { id:'t9', cat:'threat', name:'ThreatFox', url:'https://threatfox.abuse.ch', icon:'🦊', desc:'IOC paylaşım platformu. C2 sunucu ve malware indikatörleri veritabanı.', tags:['free','web'] },
+  { id:'t10', cat:'threat', name:'URLhaus', url:'https://urlhaus.abuse.ch', icon:'🔗', desc:'Malware dağıtım URL\'lerini takip eden veritabanı ve araştırma platformu.', tags:['free','web'] },
+  { id:'t11', cat:'threat', name:'Pulsedive', url:'https://pulsedive.com', icon:'💡', desc:'Topluluk destekli tehdit istihbaratı ve IOC analiz platformu.', tags:['free','web'] },
+  { id:'t12', cat:'threat', name:'Shodan CVE', url:'https://internetdb.shodan.io', icon:'⚡', desc:'Shodan\'ın internet CVE veritabanı. IP bazlı bilinen açıklık tespiti.', tags:['free','web','api'] },
+  { id:'t13', cat:'threat', name:'MISP', url:'https://www.misp-project.org', icon:'🔄', desc:'Açık kaynak tehdit istihbaratı paylaşım platformu. IOC otomasyonu.', tags:['free','tool'] },
+  { id:'t14', cat:'threat', name:'OpenCTI', url:'https://www.opencti.io', icon:'🧠', desc:'Açık kaynak siber tehdit istihbaratı yönetim platformu.', tags:['free','tool'] },
+
+  // ===== BREACH / CREDENTIAL =====
+  { id:'b1', cat:'breach', name:'Have I Been Pwned', url:'https://haveibeenpwned.com', icon:'🔔', desc:'E-posta ve telefon numarasının 800+ veri ihlalinde yer alıp almadığını kontrol eder.', tags:['free','web'] },
+  { id:'b2', cat:'breach', name:'DeHashed', url:'https://dehashed.com', icon:'🔓', desc:'Sızdırılmış veritabanı araştırma platformu. E-posta, kullanıcı adı, IP sorgusu.', tags:['premium','web'] },
+  { id:'b3', cat:'breach', name:'LeakCheck', url:'https://leakcheck.io', icon:'💧', desc:'Veri sızıntısı kontrol servisi. Büyük breach veritabanı.', tags:['free','web'] },
+  { id:'b4', cat:'breach', name:'IntelligenceX', url:'https://intelx.io', icon:'🕵', desc:'Dark web ve breach veritabanlarında gelişmiş arama motoru. Tarihsel veri.', tags:['free','web'] },
+  { id:'b5', cat:'breach', name:'BreachDirectory', url:'https://breachdirectory.org', icon:'📁', desc:'Sızdırılmış e-posta ve şifre araştırma. Açık veri seti sorgusu.', tags:['free','web'] },
+  { id:'b6', cat:'breach', name:'Snusbase', url:'https://snusbase.com', icon:'🗄', desc:'Veri ihlali araştırma servisi. E-posta, kullanıcı adı ve şifre hash kontrolü.', tags:['premium','web'] },
+  { id:'b7', cat:'breach', name:'Scylla.sh', url:'https://scylla.sh', icon:'🌀', desc:'Halka açık veri ihlali veritabanı araştırma platformu.', tags:['free','web'] },
+  { id:'b8', cat:'breach', name:'Proxynova Combos', url:'https://www.proxynova.com/tools/comb', icon:'📦', desc:'COMB (Collection of Many Breaches) veri seti arama aracı.', tags:['free','web'] },
+  { id:'b9', cat:'breach', name:'GhostProject', url:'https://ghostproject.fr', icon:'👻', desc:'Gmail adresi ile ilişkili sızdırılmış şifre hash araştırması.', tags:['free','web'] },
+  { id:'b10', cat:'breach', name:'DataBreaches.net', url:'https://www.databreaches.net', icon:'📰', desc:'Veri ihlali haberleri ve belgeleme platformu. Tarihsel ihlal arşivi.', tags:['free','web'] },
+
+  // ===== GEOLOCATION =====
+  { id:'g1', cat:'geo', name:'Google Earth', url:'https://earth.google.com', icon:'🌍', desc:'Uydu görüntüleri ve 3D dünya haritası. Konum araştırması için temel araç.', tags:['free','web'] },
+  { id:'g2', cat:'geo', name:'GeoGuessr', url:'https://www.geoguessr.com', icon:'📍', desc:'Görsel ipuçları ile konum tahmin oyunu. Coğrafi analiz becerisi geliştirme.', tags:['free','web'] },
+  { id:'g3', cat:'geo', name:'Mapillary', url:'https://www.mapillary.com', icon:'📸', desc:'Kalabalık kaynaklı sokak seviyesi fotoğrafları ve coğrafi veri platformu.', tags:['free','web'] },
+  { id:'g4', cat:'geo', name:'OpenStreetMap', url:'https://www.openstreetmap.org', icon:'🗺', desc:'Açık kaynak dünya haritası. Coğrafi OSINT için temel veri kaynağı.', tags:['free','web'] },
+  { id:'g5', cat:'geo', name:'Wigle.net', url:'https://wigle.net', icon:'📡', desc:'Kablosuz ağ coğrafyası veritabanı. WiFi ve hücresel ağ haritalama.', tags:['free','web'] },
+  { id:'g6', cat:'geo', name:'IP Location', url:'https://www.iplocation.net', icon:'🌐', desc:'IP adresi coğrafi konum tespiti. ISP ve koordinat bilgisi.', tags:['free','web'] },
+  { id:'g7', cat:'geo', name:'Zoom Earth', url:'https://zoom.earth', icon:'🌊', desc:'Gerçek zamanlı uydu görüntüleri. Hava durumu ve doğal afet takibi.', tags:['free','web'] },
+  { id:'g8', cat:'geo', name:'Sentinel Hub', url:'https://www.sentinel-hub.com', icon:'🛰', desc:'ESA Sentinel uydu görüntülerine erişim. Multispektral analiz.', tags:['free','web'] },
+  { id:'g9', cat:'geo', name:'Echosec Systems', url:'https://www.echosec.net', icon:'📡', desc:'Coğrafi konum bazlı sosyal medya ve deep web arama platformu.', tags:['premium','web'] },
+  { id:'g10', cat:'geo', name:'SunCalc', url:'https://www.suncalc.org', icon:'☀', desc:'Konum ve tarihe göre güneş pozisyonu. Fotoğraf zamanlama doğrulama.', tags:['free','web'] },
+
+  // ===== DOCUMENTS & METADATA =====
+  { id:'doc1', cat:'documents', name:'ExifTool', url:'https://exiftool.org', icon:'🔬', desc:'Her türlü dosyadan metadata çıkarma aracı. EXIF, IPTC, XMP analizi.', tags:['free','tool'] },
+  { id:'doc2', cat:'documents', name:'FOCA', url:'https://github.com/ElevenPaths/FOCA', icon:'📂', desc:'Belge metadata analizi ve altyapı keşfi için güçlü Windows aracı.', tags:['free','tool'] },
+  { id:'doc3', cat:'documents', name:'Metagoofil', url:'https://github.com/laramies/metagoofil', icon:'🔎', desc:'Google\'dan belge indirip metadata çıkarma. Kullanıcı adı ve yazılım keşfi.', tags:['free','tool'] },
+  { id:'doc4', cat:'documents', name:'Google Dork Docs', url:'https://www.exploit-db.com/google-hacking-database', icon:'📄', desc:'Gizli doküman ve dosyaları bulmak için Google dork operatörleri.', tags:['free','web'] },
+  { id:'doc5', cat:'documents', name:'Scribd', url:'https://www.scribd.com', icon:'📚', desc:'Belgeler, raporlar ve kitaplar için büyük içerik paylaşım platformu.', tags:['free','web'] },
+  { id:'doc6', cat:'documents', name:'SlideShare', url:'https://www.slideshare.net', icon:'📊', desc:'Sunum ve slayt araştırması. Kurumsal bilgi sızıntısı tespiti.', tags:['free','web'] },
+  { id:'doc7', cat:'documents', name:'DocScraper', url:'https://github.com/rook1e/docscraper', icon:'🕷', desc:'Web sitelerinden doküman (PDF, DOC, XLS) toplama ve analiz aracı.', tags:['free','tool'] },
+  { id:'doc8', cat:'documents', name:'Pastebin Search', url:'https://pastebin.com', icon:'📋', desc:'Pastebin ve benzeri paste sitelerinde veri araştırması.', tags:['free','web'] },
+  { id:'doc9', cat:'documents', name:'Pastebeen', url:'https://pastebeen.com', icon:'🔍', desc:'Geçmiş Pastebin içerikleri araştırma ve arşiv sorgulama platformu.', tags:['free','web'] },
+  { id:'doc10', cat:'documents', name:'PDF Mage', url:'https://pdfmage.com', icon:'📘', desc:'Web sayfalarından PDF oluşturma ve içerik arşivleme aracı.', tags:['free','web'] },
+
+  // ===== CRYPTOCURRENCY =====
+  { id:'c1', cat:'crypto', name:'Blockchain Explorer', url:'https://www.blockchain.com/explorer', icon:'₿', desc:'Bitcoin işlem ve adres takibi. Cüzdan bakiyesi ve geçmiş sorgulama.', tags:['free','web'] },
+  { id:'c2', cat:'crypto', name:'Etherscan', url:'https://etherscan.io', icon:'◎', desc:'Ethereum blok zinciri explorer. Token transferi ve akıllı sözleşme analizi.', tags:['free','web'] },
+  { id:'c3', cat:'crypto', name:'Chainalysis', url:'https://www.chainalysis.com', icon:'🔗', desc:'Kurumsal blok zinciri analiz ve kripto para izleme platformu.', tags:['premium','web'] },
+  { id:'c4', cat:'crypto', name:'Bitquery', url:'https://bitquery.io', icon:'🔎', desc:'Çok zincirli blok zinciri analiz ve veri sorgulama platformu.', tags:['free','web','api'] },
+  { id:'c5', cat:'crypto', name:'OXT Research', url:'https://oxt.me', icon:'🔬', desc:'Bitcoin gizlilik araştırması ve işlem grafik analizi platformu.', tags:['free','web'] },
+  { id:'c6', cat:'crypto', name:'WalletExplorer', url:'https://www.walletexplorer.com', icon:'👛', desc:'Bitcoin cüzdan kümeleme ve anonim adres analizi servisi.', tags:['free','web'] },
+  { id:'c7', cat:'crypto', name:'Crystal Blockchain', url:'https://crystalblockchain.com', icon:'💎', desc:'Kripto para işlem izleme ve uyumluluk analizi platformu.', tags:['premium','web'] },
+  { id:'c8', cat:'crypto', name:'Blockchair', url:'https://blockchair.com', icon:'🪑', desc:'17+ blok zinciri üzerinde çoklu kripto para araştırma motoru.', tags:['free','web'] },
+  { id:'c9', cat:'crypto', name:'BscScan', url:'https://bscscan.com', icon:'🟡', desc:'Binance Smart Chain işlem ve adres explorer. BEP-20 token takibi.', tags:['free','web'] },
+  { id:'c10', cat:'crypto', name:'Crypto Scam DB', url:'https://cryptoscamdb.org', icon:'⚠', desc:'Kripto para dolandırıcılığı veritabanı. Sahte adres ve phishing tespiti.', tags:['free','web'] },
+
+  // ===== BUSINESS / CORPORATE =====
+  { id:'biz1', cat:'business', name:'OpenCorporates', url:'https://opencorporates.com', icon:'🏢', desc:'Dünya genelinde 200M+ şirket kaydına erişim. Açık şirket veritabanı.', tags:['free','web'] },
+  { id:'biz2', cat:'business', name:'Crunchbase', url:'https://www.crunchbase.com', icon:'📊', desc:'Girişim ve yatırım araştırması. Şirket profili ve yatırımcı bilgisi.', tags:['free','web'] },
+  { id:'biz3', cat:'business', name:'Companies House', url:'https://www.gov.uk/government/organisations/companies-house', icon:'🇬🇧', desc:'Birleşik Krallık şirket kayıt ve finansal bilgi veritabanı.', tags:['free','web'] },
+  { id:'biz4', cat:'business', name:'EDGAR SEC', url:'https://www.sec.gov/edgar', icon:'📈', desc:'ABD Menkul Kıymetler ve Borsa Komisyonu finansal belge veritabanı.', tags:['free','web'] },
+  { id:'biz5', cat:'business', name:'LinkedIn', url:'https://www.linkedin.com', icon:'💼', desc:'Profesyonel şirket ve çalışan araştırması. Kurumsal yapı analizi.', tags:['free','web'] },
+  { id:'biz6', cat:'business', name:'Kompass', url:'https://www.kompass.com', icon:'🧭', desc:'Küresel B2B şirket veritabanı ve iş dünyası araştırma platformu.', tags:['free','web'] },
+  { id:'biz7', cat:'business', name:'Glassdoor', url:'https://www.glassdoor.com', icon:'🔮', desc:'Şirket çalışan yorumları, maaş verileri ve kültür bilgisi.', tags:['free','web'] },
+  { id:'biz8', cat:'business', name:'Manta', url:'https://www.manta.com', icon:'🦁', desc:'ABD küçük ve orta işletme profili ve iletişim bilgisi veritabanı.', tags:['free','web'] },
+  { id:'biz9', cat:'business', name:'D&B Hoovers', url:'https://www.dnb.com/products/marketing-sales/dnb-hoovers.html', icon:'📋', desc:'Kurumsal istihbarat ve iş dünyası araştırma platformu.', tags:['premium','web'] },
+  { id:'biz10', cat:'business', name:'Bizapedia', url:'https://www.bizapedia.com', icon:'📖', desc:'ABD şirket kaydı, yönetici ve ajan bilgisi araştırma veritabanı.', tags:['free','web'] },
+
+  // ===== TRANSPORT =====
+  { id:'tr1', cat:'transport', name:'FlightAware', url:'https://flightaware.com', icon:'✈', desc:'Uçuş takibi ve havacılık veri platformu. Gerçek zamanlı uçuş durumu.', tags:['free','web'] },
+  { id:'tr2', cat:'transport', name:'Flightradar24', url:'https://www.flightradar24.com', icon:'🛩', desc:'Küresel gerçek zamanlı uçuş takip servisi. ADS-B tabanlı izleme.', tags:['free','web'] },
+  { id:'tr3', cat:'transport', name:'MarineTraffic', url:'https://www.marinetraffic.com', icon:'🚢', desc:'Küresel gemi izleme platformu. AIS tabanlı deniz trafiği.', tags:['free','web'] },
+  { id:'tr4', cat:'transport', name:'VesselFinder', url:'https://www.vesselfinder.com', icon:'⚓', desc:'Gerçek zamanlı deniz araç takibi ve liman bilgi platformu.', tags:['free','web'] },
+  { id:'tr5', cat:'transport', name:'FMCSA', url:'https://safer.fmcsa.dot.gov', icon:'🚛', desc:'ABD ticari araç ve nakliyeci kayıt araştırma veritabanı.', tags:['free','web'] },
+  { id:'tr6', cat:'transport', name:'VIN Decoder', url:'https://www.vindecoderz.com', icon:'🚗', desc:'Araç kimlik numarası (VIN) ile araç bilgisi çözümleme servisi.', tags:['free','web'] },
+  { id:'tr7', cat:'transport', name:'OpenRailwayMap', url:'https://www.openrailwaymap.org', icon:'🚂', desc:'Dünya demiryolu ağı haritası. Tren hattı ve istasyon verileri.', tags:['free','web'] },
+  { id:'tr8', cat:'transport', name:'ADSBExchange', url:'https://adsbexchange.com', icon:'📡', desc:'Sansürsüz ADS-B uçuş takibi. Askeri ve özel uçak izleme.', tags:['free','web'] },
+  { id:'tr9', cat:'transport', name:'SpaceTrack', url:'https://www.space-track.org', icon:'🛰', desc:'Uydu ve uzay nesne takibi. ABD Uzay Kuvvetleri resmi katalogu.', tags:['free','web'] },
+  { id:'tr10', cat:'transport', name:'Plane Finder', url:'https://planefinder.net', icon:'✈', desc:'Küresel uçuş takip platformu. Uçuş geçmişi ve rota analizi.', tags:['free','web'] },
+
+  // ===== CODE / DEVELOPER =====
+  { id:'cd1', cat:'code', name:'GitHub', url:'https://github.com/search', icon:'🐙', desc:'Kod deposu araması. Sızdırılmış API key, şifre ve hassas veri keşfi.', tags:['free','web'] },
+  { id:'cd2', cat:'code', name:'GitLab Search', url:'https://gitlab.com/explore', icon:'🦊', desc:'GitLab kod deposu araması. Açık kaynak proje ve sızdırılmış veri.', tags:['free','web'] },
+  { id:'cd3', cat:'code', name:'Grep.app', url:'https://grep.app', icon:'🔍', desc:'GitHub repolarında kod arama motoru. Regex ile hassas içerik tespiti.', tags:['free','web'] },
+  { id:'cd4', cat:'code', name:'SearchCode', url:'https://searchcode.com', icon:'💻', desc:'75B+ kod satırı üzerinde çalışan çok kaynaklı kod arama motoru.', tags:['free','web'] },
+  { id:'cd5', cat:'code', name:'Shodan Code', url:'https://github.com/shodan-labs', icon:'🕵', desc:'Shodan tarafından geliştirilen OSINT araçları ve kütüphane koleksiyonu.', tags:['free','web'] },
+  { id:'cd6', cat:'code', name:'NPM Audit', url:'https://www.npmjs.com', icon:'📦', desc:'NPM paket güvenlik analizi ve bağımlılık zafiyeti tespiti.', tags:['free','web'] },
+  { id:'cd7', cat:'code', name:'GitLeaks', url:'https://github.com/gitleaks/gitleaks', icon:'🕵', desc:'Git deposunda sızdırılmış sır, API key ve şifre tespiti aracı.', tags:['free','tool'] },
+  { id:'cd8', cat:'code', name:'TruffleHog', url:'https://github.com/trufflesecurity/trufflehog', icon:'🐷', desc:'GitHub, GitLab ve S3\'te kriptografik sır ve kimlik bilgisi tarayıcısı.', tags:['free','tool'] },
+  { id:'cd9', cat:'code', name:'Sourcegraph', url:'https://sourcegraph.com', icon:'🔭', desc:'Kod arama ve gezinme platformu. Büyük kod tabanı analizi.', tags:['free','web'] },
+  { id:'cd10', cat:'code', name:'SonarQube', url:'https://www.sonarqube.org', icon:'🔊', desc:'Kod kalitesi ve güvenlik açığı analiz platformu. SAST aracı.', tags:['free','tool'] },
+
+  // ===== IoT & SHODAN =====
+  { id:'iot1', cat:'iot', name:'Shodan', url:'https://www.shodan.io', icon:'🛰', desc:'İnternete açık her cihazı, kamerayı, yönlendiriciyi tarar ve indeksler.', tags:['free','web','api'] },
+  { id:'iot2', cat:'iot', name:'Zoomeye', url:'https://www.zoomeye.org', icon:'🔭', desc:'Çin merkezli siber uzay arama motoru. Shodan\'ın güçlü alternatifi.', tags:['free','web'] },
+  { id:'iot3', cat:'iot', name:'Fofa', url:'https://fofa.info', icon:'🌐', desc:'Çin siber uzay varlık arama motoru. IoT cihaz keşif platformu.', tags:['free','web'] },
+  { id:'iot4', cat:'iot', name:'Greynoise', url:'https://www.greynoise.io', icon:'🌊', desc:'İnternet arka plan gürültüsü analizi. Kötü amaçlı tarama tespiti.', tags:['free','web'] },
+  { id:'iot5', cat:'iot', name:'ONYPHE', url:'https://www.onyphe.io', icon:'🔮', desc:'Siber savunma arama motoru. Pasif ve aktif internet verisi analizi.', tags:['free','web'] },
+  { id:'iot6', cat:'iot', name:'LeakIX', url:'https://leakix.net', icon:'💧', desc:'Yapılandırma hatası ve veri sızıntısı olan internet servislerini indeksler.', tags:['free','web'] },
+  { id:'iot7', cat:'iot', name:'Natlas', url:'https://github.com/natlas/natlas', icon:'🗺', desc:'Ağ tarama ve varlık yönetim platformu. Shodan benzeri kendi kurulum.', tags:['free','tool'] },
+  { id:'iot8', cat:'iot', name:'BinaryEdge', url:'https://www.binaryedge.io', icon:'⚡', desc:'İnternet tarama verisi ve tehdit istihbaratı platformu.', tags:['free','web','api'] },
+
+  // ===== GOVERNMENT & PUBLIC RECORDS =====
+  { id:'gov1', cat:'gov', name:'PACER', url:'https://pacer.uscourts.gov', icon:'⚖', desc:'ABD federal mahkeme kayıtlarına erişim. Dava ve belge sorgulama.', tags:['premium','web'] },
+  { id:'gov2', cat:'gov', name:'FOIA.gov', url:'https://www.foia.gov', icon:'📋', desc:'ABD Bilgi Edinme Özgürlüğü talebi ve kamu belgesi araştırma platformu.', tags:['free','web'] },
+  { id:'gov3', cat:'gov', name:'OpenSecrets', url:'https://www.opensecrets.org', icon:'💰', desc:'ABD siyasi kampanya finansmanı ve lobi faaliyetleri araştırma platformu.', tags:['free','web'] },
+  { id:'gov4', cat:'gov', name:'GovTrack', url:'https://www.govtrack.us', icon:'🏛', desc:'ABD Kongresi yasa takibi, oy kayıtları ve temsilci araştırması.', tags:['free','web'] },
+  { id:'gov5', cat:'gov', name:'World Bank Data', url:'https://data.worldbank.org', icon:'🌍', desc:'Küresel kalkınma verileri ve ülke istatistikleri açık veri platformu.', tags:['free','web'] },
+  { id:'gov6', cat:'gov', name:'Offshore Leaks DB', url:'https://offshoreleaks.icij.org', icon:'🏝', desc:'ICIJ offshore şirket ve vergi cennetleri araştırma veritabanı.', tags:['free','web'] },
+  { id:'gov7', cat:'gov', name:'OpenSanctions', url:'https://www.opensanctions.org', icon:'🚫', desc:'Küresel yaptırım listesi ve siyasi açıdan riskli kişi veritabanı.', tags:['free','web'] },
+  { id:'gov8', cat:'gov', name:'Interpol Notices', url:'https://www.interpol.int/How-we-work/Notices/View-Red-Notices', icon:'🔴', desc:'Interpol kırmızı bülten ve uluslararası aranan kişi veritabanı.', tags:['free','web'] },
+  { id:'gov9', cat:'gov', name:'US Patent Database', url:'https://patents.google.com', icon:'💡', desc:'ABD ve küresel patent araştırma. Teknoloji ve inovasyon istihbaratı.', tags:['free','web'] },
+  { id:'gov10', cat:'gov', name:'MERNİS / E-Devlet', url:'https://www.turkiye.gov.tr', icon:'🇹🇷', desc:'Türkiye e-devlet kapısı. Resmi kamu hizmetleri ve kayıt sorgulamaları.', tags:['free','web'] },
+
+  // ===== ARCHIVE & CACHE =====
+  { id:'ar1', cat:'archive', name:'Wayback Machine', url:'https://web.archive.org', icon:'📚', desc:'800 milyar web sayfası arşivi. Silinmiş içerik ve site geçmişi görüntüleme.', tags:['free','web'] },
+  { id:'ar2', cat:'archive', name:'Cachedview', url:'https://cachedview.nl', icon:'💾', desc:'Google, Bing ve diğer arama motorlarının önbellek sayfalarına erişim.', tags:['free','web'] },
+  { id:'ar3', cat:'archive', name:'Archive.ph', url:'https://archive.ph', icon:'📷', desc:'Web sayfası anlık görüntüleme ve kalıcı arşivleme servisi.', tags:['free','web'] },
+  { id:'ar4', cat:'archive', name:'TimeTravel', url:'https://timetravel.mementoweb.org', icon:'⏰', desc:'Birden fazla web arşivini birleştiren zaman makinesi arama aracı.', tags:['free','web'] },
+  { id:'ar5', cat:'archive', name:'Oldweb.today', url:'https://oldweb.today', icon:'🖥', desc:'Eski web tarayıcısı simülatörü ile eski web sitelerini görüntüleme.', tags:['free','web'] },
+  { id:'ar6', cat:'archive', name:'Google Cache', url:'https://webcache.googleusercontent.com', icon:'🔍', desc:'Google\'ın önbelleğe aldığı web sayfalarına erişim için prefix URL.', tags:['free','web'] },
+  { id:'ar7', cat:'archive', name:'CommonCrawl', url:'https://commoncrawl.org', icon:'🌐', desc:'Açık kaynak web tarama verisi. Petabayt ölçekli web arşivi.', tags:['free','web'] },
+  { id:'ar8', cat:'archive', name:'Library Genesis', url:'https://libgen.rs', icon:'📖', desc:'Kitap, makale ve akademik yayın arşivi. Büyük dijital kütüphane.', tags:['free','web'] },
+];
+
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+
+const catColors = {
+  username:'#f0d060', email:'#60c0f0', domain:'#60f0a0',
+  people:'#f09060', phone:'#a060f0', social:'#f060a0',
+  images:'#60f0f0', darkweb:'#f06060', search:'#c0f060',
+  network:'#60a0f0', threat:'#f0a060', breach:'#f06080',
+  geo:'#60f080', documents:'#a0f060', crypto:'#f0c060',
+  business:'#6080f0', transport:'#f06040', code:'#40f0c0',
+  iot:'#c060f0', gov:'#f0e060', archive:'#60e0f0'
+};
+
+function makeCard(tool) {
+  const tagHTML = tool.tags.map(t => `<span class="tool-tag tag-${t}">${t.toUpperCase()}</span>`).join('');
+  const shortUrl = tool.url.replace(/^https?:\/\/(www\.)?/,'').split('/')[0];
+  return `
+    <a class="tool-card" href="${tool.url}" target="_blank" rel="noopener noreferrer"
+       onclick="openModal(event, ${JSON.stringify(tool).replace(/"/g,'&quot;')})">
+      <div class="tool-header">
+        <div class="tool-logo" style="color:${catColors[tool.cat]||'#c9a84c'}">
+          <span style="font-size:20px">${tool.icon}</span>
+        </div>
+        <div class="tool-info">
+          <div class="tool-name">${tool.name}</div>
+          <div class="tool-url">${shortUrl}</div>
+        </div>
+      </div>
+      <div class="tool-desc">${tool.desc}</div>
+      <div class="tool-tags">${tagHTML}</div>
+      <span class="tool-arrow">↗</span>
+    </a>`;
+}
+
+function renderAll() {
+  const allGrid = document.getElementById('all-grid');
+  allGrid.innerHTML = tools.map(makeCard).join('');
+
+  const cats = ['username','email','domain','people','phone','social','images','darkweb',
+    'search','network','threat','breach','geo','documents','crypto','business',
+    'transport','code','iot','gov','archive'];
+
+  cats.forEach(cat => {
+    const grid = document.getElementById(cat + '-grid') || document.getElementById(cat + '-grid2');
+    if(grid) {
+      const filtered = tools.filter(t => t.cat === cat);
+      grid.innerHTML = filtered.map(makeCard).join('');
+    }
+  });
+
+  // search-grid2 for search engines
+  const sg2 = document.getElementById('search-grid2');
+  if(sg2) sg2.innerHTML = tools.filter(t=>t.cat==='search').map(makeCard).join('');
+}
+
+function showCat(cat) {
+  document.querySelectorAll('.cat-section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+
+  const sec = document.getElementById(cat + '-section');
+  if(sec) sec.classList.add('visible');
+
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${cat}'`)) {
+      b.classList.add('active');
+    }
+  });
+
+  document.getElementById('search-results').classList.remove('visible');
+  document.getElementById('searchInput').value = '';
+}
+
+function searchTools(q) {
+  if(!q || q.trim().length < 2) {
+    document.getElementById('search-results').classList.remove('visible');
+    document.querySelectorAll('.cat-section').forEach(s => {
+      if(s.id === 'all-section') s.classList.add('visible');
+      else s.classList.remove('visible');
+    });
+    document.querySelectorAll('.cat-btn').forEach(b => {
+      b.classList.remove('active');
+      if(b.getAttribute('onclick') && b.getAttribute('onclick').includes("'all'")) b.classList.add('active');
+    });
+    return;
+  }
+
+  const lower = q.toLowerCase();
+  const results = tools.filter(t =>
+    t.name.toLowerCase().includes(lower) ||
+    t.desc.toLowerCase().includes(lower) ||
+    t.url.toLowerCase().includes(lower) ||
+    t.cat.toLowerCase().includes(lower) ||
+    t.tags.some(tag => tag.includes(lower))
+  );
+
+  document.querySelectorAll('.cat-section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+
+  const sr = document.getElementById('search-results');
+  const sg = document.getElementById('search-grid');
+  const si = document.getElementById('search-info');
+
+  if(results.length === 0) {
+    sg.innerHTML = '<div class="no-results"><span>⌀</span>ARAÇ BULUNAMADI</div>';
+  } else {
+    sg.innerHTML = results.map(makeCard).join('');
+  }
+  si.textContent = `— ${results.length} ARAÇ BULUNDU: "${q.toUpperCase()}" —`;
+  sr.classList.add('visible');
+}
+
+let filterTagActive = 'all';
+function filterByTag(tag, btn) {
+  filterTagActive = tag;
+  document.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const grid = document.getElementById('all-grid');
+  const filtered = tag === 'all' ? tools : tools.filter(t => t.tags.includes(tag));
+  grid.innerHTML = filtered.map(makeCard).join('');
+
+  showCat('all');
+}
+
+// MODAL
+function openModal(e, tool) {
+  e.preventDefault();
+  document.getElementById('modal-logo').textContent = tool.icon;
+  document.getElementById('modal-name').textContent = tool.name;
+  document.getElementById('modal-url').textContent = tool.url.replace(/^https?:\/\/(www\.)?/,'');
+  document.getElementById('modal-desc').textContent = tool.desc;
+  document.getElementById('modal-btn').href = tool.url;
+  const tagHTML = tool.tags.map(t => `<span class="tool-tag tag-${t}" style="padding:4px 12px;font-size:10px">${t.toUpperCase()}</span>`).join('');
+  document.getElementById('modal-tags').innerHTML = tagHTML;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if(e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') document.getElementById('modal').classList.remove('open');
+});
+
+// STATS
+document.getElementById('total-count').textContent = tools.length;
+document.getElementById('free-count').textContent = tools.filter(t => t.tags.includes('free')).length;
+
+renderAll();
+</script>
+</body>
+</html>
